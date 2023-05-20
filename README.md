@@ -88,8 +88,8 @@ The notebook cells have already been run with the creator's credentials. Since t
 
 ### Authors
 
-- **Angelina Ilijevski**
-- **Andres Ramirez**
+- **Chris Zhang**
+- **Natalia Alejo**
 
 #### References
 
