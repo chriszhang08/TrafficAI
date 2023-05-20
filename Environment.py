@@ -38,31 +38,35 @@ line_gap = 10
 num_lines = lane_height // (line_height + line_gap)
 
 # Car properties
-car_radius = 15
-car_speed = 5
+car_width = 15
 
 # Car class
 class Car:
-    def __init__(self, y):
+    def __init__(self, x, y):
         # Randomly choose a lane
-        self.x = lane_x + (lane_width // 2) * (2 * random.randint(0, num_lanes - 1) + 1)
-        self.y = y
+        self.x = x
+        self.y = 0
         self.color = red
+        self.car_radius = 15
+        self.car_speed = random.randint(1, 5)
 
     def move(self):
-        self.y += car_speed
+        # TODO implement variable car speeds depending on conditions
+        self.y += self.car_speed
         if self.y > height:
-            self.y = -car_radius
+            self.car_radius = 0
 
     def draw(self):
-        pygame.draw.circle(screen, self.color, (self.x, self.y), car_radius)
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.car_radius)
 
-# Create cars
-num_cars = 10
-cars = []
-for _ in range(num_cars):
-    car = Car(random.randint(0, height))
-    cars.append(car)
+# Create lanes
+lanes = []
+for i in range(num_lanes):
+    lane_cars = []
+    lanes.append(lane_cars)
+
+# TODO create a function that takes an array of cars and returns how many cars are stopping
+# TODO create a function that allows cars to change lanes
 
 # Game loop
 running = True
@@ -86,10 +90,21 @@ while running:
             line_y = lane_y + i * (line_height + line_gap)
             pygame.draw.rect(screen, yellow, (line_x, line_y, line_width, line_height))
 
-    # Move and draw cars
-    for car in cars:
-        car.move()
-        car.draw()
+    # Spawn new cars randomly in each lane
+    for i in range(num_lanes):
+        if random.random() < 0.02:  # Adjust the probability as desired
+            car_x = lane_x + (lane_width // 2) * (2 * i + 1)
+            car_y = height
+            new_car = Car(car_x, car_y)
+            lanes[i].append(new_car)
+
+    # Move and draw cars in each lane
+    for lane_cars in lanes:
+        for car in lane_cars:
+            car.move()
+            car.draw()
+            if car.y > height:
+                lane_cars.remove(car)
 
     pygame.display.update()
     clock.tick(60)
