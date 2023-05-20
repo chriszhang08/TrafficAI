@@ -1,0 +1,33 @@
+# Pygame
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py~
+*.swp
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Compiled files
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+venv/
+.env/
+env/
+
+# IDE-specific
+.idea/
+.vscode/
+*.pydevproject
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
