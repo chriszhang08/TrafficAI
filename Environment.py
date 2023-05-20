@@ -56,6 +56,11 @@ class Car:
         if self.y > height:
             self.car_radius = 0
 
+    def brake(self):
+        # gradually slow down
+        while self.car_speed > 0:
+            self.car_speed -= 1
+
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.car_radius)
 
