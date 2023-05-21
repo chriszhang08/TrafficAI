@@ -9,7 +9,7 @@ import random
 pygame.init()
 
 # Set up the display
-width, height = 800, 800
+width, height = 1400, 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Highway Simulation")
 
@@ -22,32 +22,32 @@ yellow = (255, 255, 0)
 red = (255, 0, 0)
 
 # Number of lanes
-num_lanes = 1
+num_lanes = 3
 
 # Highway properties
-lane_width = 50
-all_lanes_width = lane_width * num_lanes
-lane_height = height
-lane_x = (width - all_lanes_width) // 2
-lane_y = height - lane_height
+lane_height = 50
+all_lanes_height = lane_height * num_lanes
+lane_width = width
+lane_x = width - lane_width
+lane_y = (height - all_lanes_height) // 2
 
 # Road lines properties
-line_width = 2
-line_height = 10
+line_width = 10
+line_height = 2
 line_gap = 10
-num_lines = lane_height // (line_height + line_gap)
+num_lines = lane_width // (line_height + line_gap)
 
 # Car properties
-car_width = 15
-
+car_width = 10
 
 # Car class
 class Car(pygame.sprite.Sprite):
+    static_traffic_score = 0
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         # Randomly choose a lane
-        self.x = x
-        self.y = 0
+        self.x = 0
+        self.y = y
         self.react_time = 0
         self.color = red
         self.car_radius = 15
@@ -61,11 +61,13 @@ class Car(pygame.sprite.Sprite):
             self.react_time -= 1
         elif (self.state == "braking"):
             self.car_speed -= .2
+            Car.static_traffic_score += 0.5
             if (self.car_speed <= 0):
                 self.car_speed = 0
                 self.state = "stopped"
         elif (self.state == "stopped"):
             self.car_speed = 0
+            Car.static_traffic_score += 1
         elif (self.state == "cruising"):
             self.car_speed = 5
         elif (self.state == "accelerating"):
@@ -73,8 +75,8 @@ class Car(pygame.sprite.Sprite):
             if (self.car_speed >= 5):
                 self.car_speed = 5
                 self.state = "cruising"
-        self.y += self.car_speed
-        if self.y > height:
+        self.x += self.car_speed
+        if self.x > width:
             self.car_radius = 0
 
     # TODO change how fast cars accelerate and brake depending on the state
@@ -120,8 +122,11 @@ def update_car_states(cars):
 # Game loop
 running = True
 clock = pygame.time.Clock()
+font = pygame.font.Font(None, 36)  # You can specify the font file and size
+spawn_timer = 0
 
-while running:
+counter = 0
+while running and counter < 1000:
     screen.fill(green)
 
     # Event handling
@@ -130,22 +135,35 @@ while running:
             running = False
 
     # Draw the highway
-    pygame.draw.rect(screen, gray, (lane_x, lane_y, all_lanes_width, lane_height))
+    pygame.draw.rect(screen, gray, (lane_x, lane_y, lane_width, all_lanes_height))
 
     # Draw the road lines if there is more than one lane
     for lane in range(num_lanes - 1):
-        line_x = lane_x + (all_lanes_width - line_width) // num_lanes * (lane + 1)
+        line_y = lane_y + (all_lanes_height - line_width) // num_lanes * (lane + 1)
         for i in range(num_lines):
-            line_y = lane_y + i * (line_height + line_gap)
+            line_x = lane_x + i * (line_height + line_gap)
             pygame.draw.rect(screen, yellow, (line_x, line_y, line_width, line_height))
 
+    # Show the traffic score
+    traffic_score = Car.static_traffic_score
+    traffic_score_text = font.render("Traffic Score: " + str(traffic_score), True, black)
+    screen.blit(traffic_score_text, (10, 10))
+    counter_text = font.render("Counter: " + str(counter), True, black)
+    screen.blit(counter_text, (10, 30))
+
     # Spawn new cars randomly in each lane
+    # Change the spawn timer and random number to adjust the frequency of car spawns
+    SPAWN_DELAY = 8
+    PROBABILITY = 0.2
     for i in range(num_lanes):
-        if random.random() < 0.02:  # Adjust the probability as desired
-            car_x = lane_x + (lane_width // 2) * (2 * i + 1)
-            car_y = height
+        if spawn_timer > 0:
+            spawn_timer -= 1
+        if random.random() < PROBABILITY and spawn_timer == 0:  # Adjust the probability as desired
+            car_x = 0
+            car_y = lane_y + (lane_height // 2) * (2 * i + 1)
             new_car = Car(car_x, car_y)
             lanes[i].add(new_car)
+            spawn_timer = SPAWN_DELAY
 
     # Move and draw cars in each lane
     for lane_cars in lanes:
@@ -153,9 +171,10 @@ while running:
             update_car_states(lane_cars)
             car.move()
             car.draw()
-            if car.y > height:
+            if car.x > width:
                 car.kill()
-            if car.y == height - 400 and car.car_speed > 0:
+                counter += 1
+            if car.x == width - 400 and car.car_speed > 0:
                 car.brake()
             if car.state == "stopped":
                 car.react()
