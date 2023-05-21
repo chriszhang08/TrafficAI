@@ -48,6 +48,7 @@ class Car(pygame.sprite.Sprite):
         # Randomly choose a lane
         self.x = x
         self.y = 0
+        self.react_time = 0
         self.color = red
         self.car_radius = 15
         self.car_speed = random.randint(4, 5)
@@ -56,7 +57,9 @@ class Car(pygame.sprite.Sprite):
 
     def move(self):
         # TODO implement variable car speeds depending on conditions
-        if (self.state == "braking"):
+        if (self.react_time > 0):
+            self.react_time -= 1
+        elif (self.state == "braking"):
             self.car_speed -= .2
             if (self.car_speed <= 0):
                 self.car_speed = 0
@@ -65,13 +68,28 @@ class Car(pygame.sprite.Sprite):
             self.car_speed = 0
         elif (self.state == "cruising"):
             self.car_speed = 5
+        elif (self.state == "accelerating"):
+            self.car_speed += .2
+            if (self.car_speed >= 5):
+                self.car_speed = 5
+                self.state = "cruising"
         self.y += self.car_speed
         if self.y > height:
             self.car_radius = 0
 
+    # TODO change how fast cars accelerate and brake depending on the state
     def brake(self):
         # gradually slow down
         self.state = "braking"
+
+    def accelerate(self):
+        # gradually speed up
+        self.state = "accelerating"
+
+    # TODO configure the reaction times to be dependent on the state of the car
+    def react(self):
+        # react to the car in front of you
+        self.react_time = 20
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.car_radius)
@@ -93,7 +111,9 @@ def update_car_states(cars):
         if ((list_of_cars[i-1].y - list_of_cars[i].y < 100) and
                 (list_of_cars[i-1].state == "braking" or list_of_cars[i-1].state == "stopped")):
             list_of_cars[i].brake()
-
+        elif ((list_of_cars[i-1].y - list_of_cars[i].y > 100) and
+              (list_of_cars[i].state == "stopped" or list_of_cars[i].state == "braking")):
+            list_of_cars[i].accelerate()
 
 # TODO create a function that allows cars to change lanes
 
@@ -135,8 +155,11 @@ while running:
             car.draw()
             if car.y > height:
                 car.kill()
-            if car.y > height - 400 and car.car_speed > 0:
+            if car.y == height - 400 and car.car_speed > 0:
                 car.brake()
+            if car.state == "stopped":
+                car.react()
+                car.accelerate()
 
     pygame.display.update()
     clock.tick(60)
