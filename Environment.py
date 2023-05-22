@@ -27,11 +27,18 @@ red = (255, 0, 0)
 num_lanes = 3
 
 # Highway properties
-lane_height = 50
+lane_height = 30
 all_lanes_height = lane_height * num_lanes
 lane_width = width
 lane_x = width - lane_width
 lane_y = (height - all_lanes_height) // 2
+
+merge_lane_x = 200
+merge_lane_y = lane_y + 100
+exit_lane_x = 1200
+exit_lane_y = lane_y + 100
+# TODO make this variable and allow AI to control this
+exit_ramp_width = 200
 
 # Road lines properties
 line_width = 10
@@ -169,6 +176,35 @@ def spawn_cars():
     for i in range(num_lanes):
         spawn_timers[i] -= 1
 
+# return the coordinates of the points of the polygon that represents the ramp
+def draw_ramp(ramp_x, ramp_y, exit_or_merge):
+    if exit_or_merge == "merge":
+        # create 2 similar triangles
+        ramp_rect_coords = (
+            (ramp_x, lane_y + all_lanes_height),
+            (ramp_x, lane_y + all_lanes_height + lane_height),
+            (0, ramp_y + lane_height),
+            (0, ramp_y)
+        )
+        ramp_merge_coords = (
+            (ramp_x, lane_y + all_lanes_height),
+            (ramp_x + exit_ramp_width, lane_y + all_lanes_height),
+            (ramp_x, lane_y + all_lanes_height + lane_height)
+        )
+    else:
+        ramp_rect_coords = (
+            (ramp_x, lane_y + all_lanes_height),
+            (ramp_x, lane_y + all_lanes_height + lane_height),
+            (width, ramp_y + lane_height),
+            (width, ramp_y)
+        )
+        ramp_merge_coords = (
+            (ramp_x, lane_y + all_lanes_height),
+            (ramp_x - exit_ramp_width, lane_y + all_lanes_height),
+            (ramp_x, lane_y + all_lanes_height + lane_height)
+        )
+    pygame.draw.polygon(screen, gray, ramp_rect_coords)
+    pygame.draw.polygon(screen, gray, ramp_merge_coords)
 
 # TODO create a function that allows cars to change lanes
 
@@ -178,6 +214,7 @@ clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)  # You can specify the font file and size
 
 counter = 0
+
 
 while running and counter < 100:
     screen.fill(green)
@@ -189,6 +226,8 @@ while running and counter < 100:
 
     # Draw the highway
     pygame.draw.rect(screen, gray, (lane_x, lane_y, lane_width, all_lanes_height))
+    draw_ramp(merge_lane_x, merge_lane_y, exit_or_merge="merge")
+    draw_ramp(exit_lane_x, exit_lane_y, exit_or_merge="exit")
 
     # Draw the road lines if there is more than one lane
     for lane in range(num_lanes - 1):
@@ -215,8 +254,6 @@ while running and counter < 100:
             if car.x > width:
                 car.kill()
                 counter += 1
-            if car.x == 600:
-                car.brake(0)
 
     pygame.display.update()
     clock.tick(60)
