@@ -25,6 +25,7 @@ red = (255, 0, 0)
 
 # Number of lanes
 num_lanes = 3
+num_merge_lanes = 1
 
 # Highway properties
 lane_height = 30
@@ -61,11 +62,16 @@ class Car(pygame.sprite.Sprite):
         self.car_radius = 5
         self.car_speed = 1
         self.braking_rate = .2
-        self.lane = lane
+        self.origin = lane
+        self.curr_lane = lane
+        self.dest = 0
         if lane == 0:
             self.max_speed = 1.02
         elif lane == num_lanes - 1:
             self.max_speed = 0.8
+        elif lane >= num_lanes:
+            # TODO fix this so that the direction changes as well
+            self.max_speed = 0.6
         else:
             self.max_speed = 0.95
         self.state = "cruising"
@@ -125,13 +131,13 @@ class Car(pygame.sprite.Sprite):
 
 # Create lanes
 lanes = []
-for i in range(num_lanes):
+for i in range(num_lanes + num_merge_lanes):
     lane_cars = pygame.sprite.Group()
     lanes.append(lane_cars)
 
 # Create a global dictionary where the key is the lane number and the value is the spawn timer of that lane
 spawn_timers = {}
-for i in range(num_lanes):
+for i in range(num_lanes + num_merge_lanes):
     spawn_timers[i] = 0
 
 
@@ -159,7 +165,7 @@ def update_car_states(cars):
 def spawn_cars():
     PROBABILITY = 1
     # Create a car
-    spawn_lane = random.randint(0, num_lanes - 1)
+    spawn_lane = random.randint(0, num_lanes + num_merge_lanes - 1)
 
     if spawn_timers[spawn_lane] <= 0:
         car_x = 0
@@ -168,12 +174,14 @@ def spawn_cars():
         lanes[spawn_lane].add(new_car)
         if spawn_lane == 0:
             spawn_timers[spawn_lane] = random.randint(40,70)
-        elif spawn_lane == num_lanes - 1:
+        elif spawn_lane == num_lanes - num_merge_lanes - 1:
             spawn_timers[spawn_lane] = random.randint(30,40)
+        elif spawn_lane >= num_lanes:
+            spawn_timers[spawn_lane] = random.randint(70,80)
         else:
             spawn_timers[spawn_lane] = random.randint(35,65)
     # decrement the spawn timer
-    for i in range(num_lanes):
+    for i in range(num_lanes + num_merge_lanes):
         spawn_timers[i] -= 1
 
 # return the coordinates of the points of the polygon that represents the ramp
