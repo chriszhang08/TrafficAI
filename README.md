@@ -53,8 +53,9 @@
 // TODO Natalia
 
 ### Future prospects
+<img width="476" alt="Traffic AI Business model" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/f0ae30ec-c527-4f7b-95e8-2fd5730cc490">
 
-// TODO Andres
+
 
 ## Additional details
 
