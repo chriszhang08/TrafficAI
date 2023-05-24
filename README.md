@@ -18,15 +18,18 @@
 
 ## Project summary
 
-// TODO Andres
+The world is undergoing one of the largest waves of urban growth in history. With that growth in population come increasing challenges of traffic congestion and its detrimental impact on our environment. So how can we address both the issues of improving people's quality of life, and also reducing our impact on the environment? An innovative approach is needed to address such an issue. We believe that through machine learning we can simulate traffic conditions, and obtain insights to predict the optimal steps to take when it comes to placing new roads/intersections, traffic signs, and exits in order to reduce traffic carbon emissions and build smarter, eco-friendly cities.
+
+This is how our solution Traffic AI can make an impact
+
 
 ### The issue we are hoping to solve
 
-// TODO Andres
+We aim to reduce the impact on our environment and also aim to improve the quality of life by creating smarter and more sustainable roads and cities by empowering urban planners and policy makers to make data driven decisions to minimize traffic congestion.
 
 ### How our technology solution can help
 
-// TODO Andres
+Our solution will leverage machine learning to simulate traffic intersections and analyze various parameters, including vehicle flow, congestion patterns, and carbon emission levels, to provide valuable insights that can be used to predict strategic sign installations and also optimal intersection/road placements.
 
 ### Our idea
 
