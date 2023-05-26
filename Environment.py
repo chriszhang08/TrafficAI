@@ -39,6 +39,44 @@ line_height = 2
 line_gap = 10
 num_lines = lane_width // (line_height + line_gap)
 
+# Button class
+objects = []
+class Button():
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.onclickFunction = onclickFunction
+        self.onePress = onePress
+        self.alreadyPressed = False
+
+        self.fillColors = {
+            'normal': '#ffffff',
+            'hover': '#666666',
+            'pressed': '#333333',
+        }
+        self.buttonSurface = pygame.Surface((self.width, self.height))
+        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+        self.buttonSurf = font.render(buttonText, True, (20, 20, 20))
+        objects.append(self)
+
+    def process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.buttonSurface.fill(self.fillColors['normal'])
+        if self.buttonRect.collidepoint(mousePos):
+            self.buttonSurface.fill(self.fillColors['hover'])
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.buttonSurface.fill(self.fillColors['pressed'])
+                if self.onePress:
+                    self.onclickFunction()
+                elif not self.alreadyPressed:
+                    self.onclickFunction()
+                    self.alreadyPressed = True
+            else:
+                self.alreadyPressed = False
+
 # Car class
 class Car(pygame.sprite.Sprite):
     static_traffic_score = 0
@@ -56,7 +94,7 @@ class Car(pygame.sprite.Sprite):
         # TODO implement car state (accelerating, braking, stopped, etc.)
         self.state = "cruising"
 
-    def move(self):
+    def move(self, merge=False):
         # TODO implement variable car speeds depending on conditions
         if (self.react_time > 0):
             self.react_time -= 1
@@ -168,6 +206,15 @@ font = pygame.font.Font(None, 36)  # You can specify the font file and size
 
 counter = 0
 
+def add_road():
+    global num_lines
+    num_lines += 1
+
+def remove_road():
+    global num_lines
+    num_lines -= 1
+
+
 while running and counter < 100:
     screen.fill(green)
 
@@ -192,6 +239,12 @@ while running and counter < 100:
     screen.blit(traffic_score_text, (10, 10))
     counter_text = font.render("Counter: " + str(counter), True, black)
     screen.blit(counter_text, (10, 30))
+    Button(30, 30, 100, 100, '+', add_road())
+    roads_text = font.render("No. of Roads", True, black)
+    screen.blit(roads_text, (400, 30))
+    Button(30, 30, 100, 100, '-', add_road())
+    for object in objects:
+        object.process()
 
     spawn_cars()
 
