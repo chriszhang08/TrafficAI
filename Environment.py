@@ -178,7 +178,7 @@ class Car(pygame.sprite.Sprite):
             self.max_speed = 0.95
         self.state = "cruising"
 
-    def move(self):
+    def move(self, merge=False):
         # TODO implement variable car speeds depending on conditions
         if self.react_time > 0:
             self.react_time -= 1
@@ -316,6 +316,15 @@ font = pygame.font.Font(None, 36)  # You can specify the font file and size
 counter = 0
 game_set = False
 
+def add_road():
+    global num_lines
+    num_lines += 1
+
+def remove_road():
+    global num_lines
+    num_lines -= 1
+
+
 while running and counter < 100:
     screen.fill(green)
 
@@ -362,6 +371,10 @@ while running and counter < 100:
     screen.blit(traffic_score_text, (10, 10))
     counter_text = font.render("Counter: " + str(counter), True, black)
     screen.blit(counter_text, (10, 30))
+    roads_text = font.render("No. of Roads", True, black)
+    screen.blit(roads_text, (400, 30))
+    for object in objects:
+        object.process()
 
     # Spawn cars
     if game_set:
