@@ -407,11 +407,11 @@ class Car(pygame.sprite.Sprite):
         self.car_speed = 1
         self.braking_rate = .2
         self.car_speed = 1
+        self.y_speed = 0
         self.braking_rate = .2
         self.origin = lane_number
         self.curr_lane = lane_number
-        # TODO fix impl this dest
-        self.dest = 0
+        self.dest = random.randint(0, num_lanes + num_merge_lanes - 1)
         if lane_number == 0:
             self.max_speed = 1.02
         elif lane_number == num_lanes - 1:
@@ -422,6 +422,7 @@ class Car(pygame.sprite.Sprite):
             self.max_speed = 0.95
         self.state = CarState.CRUISING
 
+        # TODO what if dest = origin?
         self.merging_direction = 1 if self.dest > self.origin else 0
         self.car_ahead = None  # modify this value when car merges; update this value each time we call move()
         self.state = CarState.CRUISING
@@ -456,7 +457,13 @@ class Car(pygame.sprite.Sprite):
                 self.state = CarState.CRUISING
 
         self.x += self.car_speed
+        self.y += self.y_speed
         self.calculate_merge_index()
+
+        if self.is_on_ramp():
+            self.y_speed = self.calc_y_speed()
+        else:
+            self.y_speed = 0
 
         if self.x > width:
             self.car_radius = 0
@@ -542,7 +549,6 @@ class Car(pygame.sprite.Sprite):
 
         return True
 
-
     # REQUIRES: we are merging
     # EFFECTS: calculates the index of the lane we want to merge into
     def calculate_merge_index(self):
@@ -567,7 +573,6 @@ class Car(pygame.sprite.Sprite):
 
         return
 
-
     # REQUIRES: we are allowed to merge and that self.merging_index is set
     def continue_merge(self):
         # 4. continuing merge
@@ -577,7 +582,7 @@ class Car(pygame.sprite.Sprite):
             # we want to accelerate in the middle of the neighbor car and the car in front of the neighbor car
             # once we are in the middle, move down lanes
             # TODO: goal distance for current car: neighbor_car.x + (neighbor_car.distance_windows_list[self.merging_idx] // 2)
-                # once this distance is reached, move to the y based on merging direction
+            # once this distance is reached, move to the y based on merging direction
             if self.merging_direction == 0:
                 self.y -= 8  # (1.2 * self.car_speed)
             elif self.merging_direction == 1:
@@ -608,8 +613,24 @@ class Car(pygame.sprite.Sprite):
         # react to the car in front of you
         self.react_time = sleep_time
 
+    def calc_y_speed(self):
+        if self.x in range(0, merge_lane.ramp_x):
+            slope = (merge_lane_y + lane_height // 2) / merge_lane.ramp_x
+            return slope / 3
+        else:
+            slope = (exit_lane_y + lane_height // 2) / exit_lane.ramp_x
+            return -slope / 3
+
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.car_radius)
+
+    def is_on_ramp(self):
+        if self.lane_number >= num_lanes:
+            if self.y > lane_y + all_lanes_height + (lane_height // 2):
+                self.merge(self.car_ahead)
+                return False
+            else:
+                return True
 
 
 # Create a global dictionary where the key is the lane number and the value is the spawn timer of that lane
@@ -637,6 +658,9 @@ def spawn_cars():
     if spawn_timers[spawn_lane] <= 0:
         car_x = 0
         car_y = lane_y + (lane_height // 2) * (2 * spawn_lane + 1)
+        # TODO fix the y axis spawn location
+        if spawn_lane >= num_lanes:
+            car_y = lane_y + all_lanes_height + (lane_height // 2)
         new_car = Car(car_x, car_y, spawn_lane)
         lanes[spawn_lane].add(new_car)
         if spawn_lane == 0:
