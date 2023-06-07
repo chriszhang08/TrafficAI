@@ -577,7 +577,8 @@ class Car(pygame.sprite.Sprite):
 
             # we want to accelerate in the middle of the neighbor car and the car in front of the neighbor car
             # once we are in the middle, move down lanes
-
+            # TODO: goal distance for current car: neighbor_car.x + (neighbor_car.distance_windows_list[self.merging_idx] // 2)
+                # once this distance is reached, move to the y based on merging direction
             if self.merging_direction == 0:
                 self.y -= 8  # (1.2 * self.car_speed)
             elif self.merging_direction == 1:
