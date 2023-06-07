@@ -13,6 +13,8 @@ from keras.layers.core import Dense, Dropout, Activation
 from keras.optimizers import RMSprop
 
 
+# TODO add an engineer class that will be used to configure the roads
+
 class Agent:
     def __init__(self, agent):
         self.reward = 0
@@ -108,7 +110,7 @@ def run(params):
         agent.save_config()
         agent.calc_loss()
 
-        state_old = agent.get_state(engineer, food1)
+        state_old = agent.get_state(engineer)
 
         # perform random actions based on agent.epsilon, or choose the action
         if random.uniform(0, 1) < agent.epsilon:
@@ -121,8 +123,8 @@ def run(params):
                 final_move = np.eye(3)[np.argmax(prediction.detach().cpu().numpy()[0])]
 
         # perform new move and get new state
-        engineer.configure_roads(final_move, game, food1, agent)
-        state_new = agent.get_state(game, player1, food1)
+        engineer.configure_roads(final_move, game, agent)
+        state_new = agent.get_state(game, engineer)
 
         # set reward for the new state
         reward = agent.set_reward(engineer, game.crash)
