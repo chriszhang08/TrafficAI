@@ -201,9 +201,8 @@ class Slider:
 
 
 class Ramp():
-    def __init__(self, x, y, exit_or_merge):
-        self.ramp_x = x
-        self.ramp_y = y
+    def __init__(self, ramp_x, exit_or_merge):
+        self.ramp_x = ramp_x
         self.color = gray
         self.hover_color = hover
         self.exit_or_merge = exit_or_merge
@@ -243,8 +242,8 @@ class Ramp():
             ramp_rect_coords = (
                 (self.ramp_x, lane_y + all_lanes_height),
                 (self.ramp_x, lane_y + all_lanes_height + lane_height),
-                (0, self.ramp_y + lane_height),
-                (0, self.ramp_y)
+                (0, merge_lane_y + lane_height),
+                (0, merge_lane_y)
             )
             ramp_lane_coords = (
                 (self.ramp_x, lane_y + all_lanes_height),
@@ -261,8 +260,8 @@ class Ramp():
             ramp_rect_coords = (
                 (self.ramp_x, lane_y + all_lanes_height),
                 (self.ramp_x, lane_y + all_lanes_height + lane_height),
-                (width, self.ramp_y + lane_height),
-                (width, self.ramp_y)
+                (width, exit_lane_y + lane_height),
+                (width, exit_lane_y)
             )
             ramp_lane_coords = (
                 (self.ramp_x, lane_y + all_lanes_height),
@@ -665,8 +664,8 @@ game_set = False
 # Create the slider
 slider = Slider(900, 100, slider_width, slider_height, handle_width, handle_height, slider_color,
                 slider_handle_color)
-merge_lane = Ramp(merge_lane_x, merge_lane_y, "merge")
-exit_lane = Ramp(exit_lane_x, exit_lane_y, "exit")
+merge_lane = Ramp(merge_lane_x, "merge")
+exit_lane = Ramp(exit_lane_x, "exit")
 
 while running and counter < 100:
 
