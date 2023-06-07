@@ -359,8 +359,6 @@ class Lane(pygame.sprite.Sprite):
             if car.x > width:
                 car.kill()
                 counter += 1
-            if car.x == 600:
-                car.brake(0)
 
             # car_ahead = car
 
@@ -616,10 +614,10 @@ class Car(pygame.sprite.Sprite):
     def calc_y_speed(self):
         if self.x in range(0, merge_lane.ramp_x):
             slope = (merge_lane_y + lane_height // 2) / merge_lane.ramp_x
-            return slope / 3
+            return slope / 3.2
         else:
             slope = (exit_lane_y + lane_height // 2) / exit_lane.ramp_x
-            return -slope / 3
+            return -slope / 3.2
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.car_radius)
@@ -628,9 +626,12 @@ class Car(pygame.sprite.Sprite):
         if self.lane_number >= num_lanes:
             if self.y > lane_y + all_lanes_height + (lane_height // 2):
                 self.merge(self.car_ahead)
-                return False
-            else:
                 return True
+            elif self.x in range(exit_lane.ramp_x, width):
+                self.merge(self.car_ahead)
+                return True
+            else:
+                return False
 
 
 # Create a global dictionary where the key is the lane number and the value is the spawn timer of that lane
@@ -660,7 +661,7 @@ def spawn_cars():
         car_y = lane_y + (lane_height // 2) * (2 * spawn_lane + 1)
         # TODO fix the y axis spawn location
         if spawn_lane >= num_lanes:
-            car_y = lane_y + all_lanes_height + (lane_height // 2)
+            car_y = merge_lane_y + (lane_height // 2)
         new_car = Car(car_x, car_y, spawn_lane)
         lanes[spawn_lane].add(new_car)
         if spawn_lane == 0:
@@ -691,7 +692,7 @@ slider = Slider(900, 100, slider_width, slider_height, handle_width, handle_heig
 merge_lane = Ramp(merge_lane_x, "merge")
 exit_lane = Ramp(exit_lane_x, "exit")
 
-while running and counter < 100:
+while running:
 
     screen.fill(green)
 
