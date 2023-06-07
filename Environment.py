@@ -1,5 +1,4 @@
 import time
-
 import pygame
 import argparse
 import numpy as np
@@ -11,6 +10,9 @@ from enum import Enum
 
 # Initialize Pygame
 pygame.init()
+
+# TODO reach goal calculate the carbon footprint wasted by sitting in traffic
+# TODO calc the supply chain time wasted
 
 # Set up the display
 width, height = 1400, 600
@@ -24,16 +26,39 @@ gray = (100, 100, 100)
 green = (116, 139, 117)
 yellow = (255, 255, 0)
 red = (255, 0, 0)
+button_color = (100, 100, 100)
+hover = (66, 66, 66)
+slider_color = (200, 200, 200)
+slider_handle_color = (150, 150, 150)
 
 # Number of lanes
 num_lanes = 3
+num_merge_lanes = 1
 
 # Highway properties
-lane_height = 50
+lane_height = 30
 all_lanes_height = lane_height * num_lanes
 lane_width = width
 lane_x = width - lane_width
 lane_y = (height - all_lanes_height) // 2
+
+merge_lane_x = 200
+merge_lane_y = lane_y + 120
+exit_lane_x = 1200
+exit_lane_y = lane_y + 120
+exit_ramp_width = 200
+
+# Define slider properties
+slider_width = 300
+slider_height = 20
+
+# Define handle properties
+handle_width = 20
+handle_height = slider_height + 10
+
+# Define value range
+min_value = 50
+max_value = 400
 
 # Road lines properties
 line_width = 10
@@ -56,43 +81,219 @@ class Merging(Enum):
                           # (we will have merging limit set to 1 at a time)
 
 currently_merging = False
+
+lanes = []
+spawn_timers = {}
+
+
+def game_init():
+    # TODO change the speed limit
+    # Create lanes
+    for i in range(num_lanes + num_merge_lanes):
+        lane_cars = pygame.sprite.Group()
+        lanes.append(lane_cars)
+
+    # Create a global dictionary where the key is the lane number and the value is the spawn timer of that lane
+    for i in range(num_lanes + num_merge_lanes):
+        spawn_timers[i] = 0
+
+
 # Button class
-objects = []
-class Button():
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.onclickFunction = onclickFunction
-        self.onePress = onePress
-        self.alreadyPressed = False
+class Button:
+    def __init__(self, x, y, text=""):
+        self.rect = pygame.Rect(x, y, 50, 50)
+        self.color = button_color
+        self.hover_color = hover
+        self.text_color = white
+        self.text = text
 
-        self.fillColors = {
-            'normal': '#ffffff',
-            'hover': '#666666',
-            'pressed': '#333333',
-        }
-        self.buttonSurface = pygame.Surface((self.width, self.height))
-        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect)
+        text_surface = font.render(self.text, True, self.text_color)
+        text_x = self.rect.centerx - text_surface.get_width() // 2
+        text_y = self.rect.centery - text_surface.get_height() // 2
+        surface.blit(text_surface, (text_x, text_y))
 
-        self.buttonSurf = font.render(buttonText, True, (20, 20, 20))
-        objects.append(self)
+    def is_hover(self):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            self.color = self.hover_color
+        else:
+            self.color = button_color
 
-    def process(self):
-        mousePos = pygame.mouse.get_pos()
-        self.buttonSurface.fill(self.fillColors['normal'])
-        if self.buttonRect.collidepoint(mousePos):
-            self.buttonSurface.fill(self.fillColors['hover'])
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                self.buttonSurface.fill(self.fillColors['pressed'])
-                if self.onePress:
-                    self.onclickFunction()
-                elif not self.alreadyPressed:
-                    self.onclickFunction()
-                    self.alreadyPressed = True
-            else:
-                self.alreadyPressed = False
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                return True
+
+    def undraw(self):
+        self.rect = pygame.Rect(0, 0, 0, 0)
+
+
+class PlusButton(Button):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, self.color, (self.rect.centerx, self.rect.centery), 25)
+        pygame.draw.line(surface, self.text_color, (self.rect.centerx, self.rect.top + 10),
+                         (self.rect.centerx, self.rect.bottom - 10), 5)
+        pygame.draw.line(surface, self.text_color, (self.rect.left + 10, self.rect.centery),
+                         (self.rect.right - 10, self.rect.centery), 5)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.increment_var()
+
+    def increment_var(self):
+        global num_lanes, all_lanes_height, lane_y, exit_lane_y, merge_lane_y
+        if num_lanes < 12:
+            num_lanes += 1
+            all_lanes_height = lane_height * num_lanes
+            lane_y = (height - all_lanes_height) // 2
+            exit_lane_y += lane_height // 2
+            merge_lane_y += lane_height // 2
+
+
+class MinusButton(Button):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, self.color, (self.rect.centerx, self.rect.centery), 25)
+        pygame.draw.line(surface, self.text_color, (self.rect.left + 10, self.rect.centery),
+                         (self.rect.right - 10, self.rect.centery), 5)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.decrement_var()
+
+    def decrement_var(self):
+        global num_lanes, all_lanes_height, lane_y, merge_lane_y, exit_lane_y
+        if num_lanes > 1:
+            num_lanes -= 1
+            all_lanes_height = lane_height * num_lanes
+            lane_y = (height - all_lanes_height) // 2
+            exit_lane_y -= lane_height // 2
+            merge_lane_y -= lane_height // 2
+
+
+# Slider class
+class Slider:
+    def __init__(self, x, y, width, height, handle_width, handle_height, color, handle_color):
+        global exit_ramp_width
+        self.rect = pygame.Rect(x, y, width, height)
+        self.handle_rect = pygame.Rect(x, y - (handle_height - height) // 2, handle_width, handle_height)
+        self.color = color
+        self.handle_color = handle_color
+        self.dragging = False
+        self.handle_rect.centerx = exit_ramp_width + self.rect.left
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect)
+        pygame.draw.rect(surface, self.handle_color, self.handle_rect)
+
+    def handle_event(self, event):
+        global exit_ramp_width
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and self.handle_rect.collidepoint(event.pos):
+                self.dragging = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                self.dragging = False
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                self.handle_rect.centerx = event.pos[0]
+                if self.handle_rect.left < self.rect.left:
+                    self.handle_rect.left = self.rect.left
+                elif self.handle_rect.right > self.rect.right:
+                    self.handle_rect.right = self.rect.right
+
+                # Update value based on position
+                offset = self.handle_rect.centerx - self.rect.left
+                exit_ramp_width = int(offset) + min_value
+
+
+class Ramp():
+    def __init__(self, x, y, exit_or_merge):
+        self.ramp_x = x
+        self.ramp_y = y
+        self.color = gray
+        self.hover_color = hover
+        self.exit_or_merge = exit_or_merge
+        self.dragging = False
+        if exit_or_merge == "merge":
+            self.drag_box = pygame.Rect(self.ramp_x - 50, lane_y + all_lanes_height, exit_ramp_width + 100,
+                                        lane_height * 3)
+        else:
+            self.drag_box = pygame.Rect(self.ramp_x - exit_ramp_width - 50, lane_y + all_lanes_height,
+                                        exit_ramp_width + 100, lane_height * 3)
+
+    def is_hovered(self):
+        if self.drag_box.collidepoint(pygame.mouse.get_pos()):
+            self.color = self.hover_color
+        else:
+            self.color = gray
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and self.drag_box.collidepoint(event.pos):
+                self.dragging = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                self.dragging = False
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                self.ramp_x = event.pos[0] + 10
+                if self.drag_box.left < 50:
+                    self.drag_box.left = 50
+                elif self.drag_box.right > width - 50:
+                    self.drag_box.right = width - 50
+
+    # return the coordinates of the points of the polygon that represents the ramp
+    def draw(self, surface):
+        if self.exit_or_merge == "merge":
+            # create 2 similar triangles
+            ramp_rect_coords = (
+                (self.ramp_x, lane_y + all_lanes_height),
+                (self.ramp_x, lane_y + all_lanes_height + lane_height),
+                (0, self.ramp_y + lane_height),
+                (0, self.ramp_y)
+            )
+            ramp_lane_coords = (
+                (self.ramp_x, lane_y + all_lanes_height),
+                (self.ramp_x, lane_y + all_lanes_height + lane_height),
+                (self.ramp_x + exit_ramp_width, lane_y + all_lanes_height + lane_height - 8),
+                (self.ramp_x + exit_ramp_width, lane_y + all_lanes_height)
+            )
+            ramp_merge_coords = (
+                (self.ramp_x + exit_ramp_width, lane_y + all_lanes_height),
+                (self.ramp_x + exit_ramp_width + 50, lane_y + all_lanes_height),
+                (self.ramp_x + exit_ramp_width, lane_y + all_lanes_height + lane_height - 8)
+            )
+        else:
+            ramp_rect_coords = (
+                (self.ramp_x, lane_y + all_lanes_height),
+                (self.ramp_x, lane_y + all_lanes_height + lane_height),
+                (width, self.ramp_y + lane_height),
+                (width, self.ramp_y)
+            )
+            ramp_lane_coords = (
+                (self.ramp_x, lane_y + all_lanes_height),
+                (self.ramp_x, lane_y + all_lanes_height + lane_height),
+                (self.ramp_x - exit_ramp_width, lane_y + all_lanes_height + lane_height - 8),
+                (self.ramp_x - exit_ramp_width, lane_y + all_lanes_height)
+            )
+            ramp_merge_coords = (
+                (self.ramp_x - exit_ramp_width, lane_y + all_lanes_height),
+                (self.ramp_x - exit_ramp_width - 50, lane_y + all_lanes_height),
+                (self.ramp_x - exit_ramp_width, lane_y + all_lanes_height + lane_height - 8)
+            )
+        pygame.draw.polygon(surface, self.color, ramp_rect_coords)
+        pygame.draw.polygon(surface, self.color, ramp_lane_coords)
+        pygame.draw.polygon(surface, self.color, ramp_merge_coords)
+
 
 # TODO: mark car ahead as "merged" using Enum; have car_behind speed up; have variable speeds, accelerate until distance between cars is zero
 # need to keep track of cars on the left, right, and middle... and determine the gap between each car so that you know the WINDOW on the right
@@ -270,7 +471,7 @@ class Car(pygame.sprite.Sprite):
             self.continue_merge()
         elif (self.state == CarState.BRAKING):
             self.car_speed -= self.braking_rate
-            if (self.car_speed <= 0):
+            if self.car_speed <= 0:
                 self.car_speed = 0
                 self.state = CarState.STOPPED
         elif (self.state == CarState.STOPPED):
@@ -520,7 +721,6 @@ class Car(pygame.sprite.Sprite):
         # react to the car in front of you
         self.react_time = sleep_time
 
-
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.car_radius)
 
@@ -532,16 +732,6 @@ running = True
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)  # You can specify the font file and size
 
-counter = 0
-spawn_count = 0
-def add_road():
-    global num_lines
-    num_lines += 1
-
-def remove_road():
-    global num_lines
-    num_lines -= 1
-
 # Create lanes
 lanes = []
 for i in range(num_lanes):
@@ -551,34 +741,75 @@ for i in range(num_lanes):
 # Spawn new cars randomly in each lane
 # Change the spawn timer and random number to adjust the frequency of car spawns
 def spawn_cars():
-    global spawn_count
-    SPAWN_DELAY = 30
     PROBABILITY = 1
     # Create a car
-    spawn_lane = random.randint(0, num_lanes - 1)
+    spawn_lane = random.randint(0, num_lanes + num_merge_lanes - 1)
 
     if spawn_timers[spawn_lane] <= 0:
         car_x = 0
         car_y = lane_y + (lane_height // 2) * (2 * spawn_lane + 1)
         new_car = Car(car_x, car_y, spawn_lane)
         lanes[spawn_lane].add(new_car)
-        spawn_timers[spawn_lane] = SPAWN_DELAY
-        spawn_count += 1
+        if spawn_lane == 0:
+            spawn_timers[spawn_lane] = random.randint(40, 70)
+        elif spawn_lane == num_lanes - num_merge_lanes - 1:
+            spawn_timers[spawn_lane] = random.randint(30, 40)
+        elif spawn_lane >= num_lanes:
+            spawn_timers[spawn_lane] = random.randint(70, 80)
+        else:
+            spawn_timers[spawn_lane] = random.randint(35, 65)
+    
     # decrement the spawn timer
-    for i in range(num_lanes):
+    for i in range(num_lanes + num_merge_lanes):
         spawn_timers[i] -= 1
+
+counter = 0
+game_set = False
+
+# Create the slider
+slider = Slider(900, 100, slider_width, slider_height, handle_width, handle_height, slider_color,
+                slider_handle_color)
+merge_lane = Ramp(merge_lane_x, merge_lane_y, "merge")
+exit_lane = Ramp(exit_lane_x, exit_lane_y, "exit")
 
 while running and counter < 100:
 
     screen.fill(green)
 
+    plus_button = PlusButton(1250, 30)
+    minus_button = MinusButton(1180, 30)
+    set_button = Button(675, 500, "Go")
+
+    # Draw the highway
+    pygame.draw.rect(screen, gray, (lane_x, lane_y, lane_width, all_lanes_height))
+
+    plus_button.is_hover()
+    minus_button.is_hover()
+    set_button.is_hover()
+    merge_lane.is_hovered()
+    exit_lane.is_hovered()
+
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if set_button.handle_event(event):
+            game_init()
+            set_button.undraw()
+            game_set = True
+        slider.handle_event(event)
+        plus_button.handle_event(event)
+        minus_button.handle_event(event)
+        merge_lane.handle_event(event)
+        exit_lane.handle_event(event)
 
-    # Draw the highway
-    pygame.draw.rect(screen, gray, (lane_x, lane_y, lane_width, all_lanes_height))
+    plus_button.draw(screen)
+    minus_button.draw(screen)
+    slider.draw(screen)
+    merge_lane.draw(screen)
+    exit_lane.draw(screen)
+    if not game_set:
+        set_button.draw(screen)
 
     # Draw the road lines if there is more than one lane
     for lane in range(num_lanes - 1):
@@ -593,19 +824,19 @@ while running and counter < 100:
     screen.blit(traffic_score_text, (10, 10))
     counter_text = font.render("Counter: " + str(counter), True, black)
     screen.blit(counter_text, (10, 30))
-    Button(30, 30, 100, 100, '+', add_road())
-    roads_text = font.render("No. of Roads", True, black)
-    screen.blit(roads_text, (400, 30))
-    Button(30, 30, 100, 100, '-', add_road())
-    for object in objects:
-        object.process()
-
-    if spawn_count < 30:
-        spawn_cars()
+    roads_text = font.render("No. of Roads: " + str(num_lanes), True, black)
+    screen.blit(roads_text, (980, 45))
+    ramp_width_text = font.render("Ramp Width: " + str(exit_ramp_width), True, black)
+    screen.blit(ramp_width_text, (980, 10))
 
     print("spawn count: ", spawn_count)
     for lane in lanes:
         lane.display()
+        
+    # Spawn cars
+    if game_set:
+        spawn_cars()
+
 
     pygame.display.update()
     clock.tick(60)
