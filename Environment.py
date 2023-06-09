@@ -34,8 +34,6 @@ blue = (0, 0, 255)
 cyan = (0, 255, 255)
 magenta = (255, 0, 255)
 
-global_colors = [white, black, green, yellow, red, slider_color, slider_handle_color, blue, cyan, magenta]
-
 # Number of lanes
 num_lanes = 3
 num_merge_lanes = 1
@@ -310,20 +308,61 @@ class Lane(pygame.sprite.Sprite):
 
     # they accelerate if there is space in front of them, brake if they are too close to the car in front of them,
     # and stop if they are at the end of the highway
-    def update_car_states(self, list_of_cars):
-        # list_of_cars = cars.sprites()
-        if list_of_cars[0].state == CarState.STOPPED:
-            list_of_cars[0].react(10)
-            list_of_cars[0].accelerate()
-        for i in range(1, len(list_of_cars)):
+    def update_car_states(self):
+        global num_lanes
+
+        if self.lane_cars_list[0].state == CarState.STOPPED:
+            if self.lane_cars_list[0].prev_state != CarState.MERGING:
+                self.lane_cars_list[0].react(3)
+                self.lane_cars_list[0].accelerate()
+            else:
+                self.lane_cars_list[0].merge()
+        for i in range(1, len(self.lane_cars_list)):
             # brake if the car in front of them is too close
-            if list_of_cars[i - 1].x - list_of_cars[i].x < 20 and list_of_cars[i].state != CarState.BRAKING:
-                list_of_cars[i].brake(list_of_cars[i - 1].x - list_of_cars[i].x)
+            if self.lane_cars_list[i].state != CarState.MERGING and self.lane_cars_list[i - 1].x - self.lane_cars_list[
+                i].x < 20 and self.lane_cars_list[i].state != CarState.BRAKING:
+                self.lane_cars_list[i].brake(self.lane_cars_list[i - 1].x - self.lane_cars_list[i].x)
             # accelerate if there is space in front of them
-            elif ((list_of_cars[i - 1].x - list_of_cars[i].x > 30) and
-                  (list_of_cars[i].state == CarState.STOPPED or list_of_cars[i].state == CarState.BRAKING)):
-                list_of_cars[i].react(2)
-                list_of_cars[i].accelerate()
+            elif (not self.lane_cars_list[i].car_ahead is None and self.lane_cars_list[i].distance(
+                    self.lane_cars_list[i].car_ahead) > 30) and \
+                    (self.lane_cars_list[i].state == CarState.STOPPED or self.lane_cars_list[
+                        i].state == CarState.BRAKING):
+                if self.lane_cars_list[i].prev_state != CarState.MERGING:
+                    self.lane_cars_list[i].react(3)
+                    self.lane_cars_list[i].accelerate()
+                else:
+                    self.lane_cars_list[i].merge()
+
+        # brake if there is no more ramp
+        if self.lane_number >= num_lanes:
+            for car in self.lane_cars_list:
+                if merge_lane.ramp_x + exit_ramp_width - 30 < car.x < merge_lane.ramp_x + exit_ramp_width:
+                    car.brake(0)
+
+        for car in self.lane_cars_list:
+            if car.state != CarState.MERGING and car.prev_state != CarState.MERGING and car.initiate_merge():
+                car.prev_state = car.state
+                car.state = CarState.MERGING
+                car.merging_lane.calculate_window()
+                car.merge_count = 0
+                car.reached_x_goal = False
+
+                # we want to accelerate in the middle of the neighbor car and the car in front of the neighbor car
+                dist_to_move = (car.merging_lane.distance_window_list[car.merging_index - 1] // 2) if \
+                    car.merging_index != 0 else 10
+
+                if len(car.merging_lane.lane_cars_list) == 0:
+                    car.goal_x = car.x + 50
+                elif car.merging_lane.lane_cars_list[car.merging_index].location_x > car.x:
+                    car.goal_x = car.merging_lane.lane_cars_list[car.merging_index].location_x + dist_to_move
+                else:
+                    car.goal_x = car.x
+
+                car.goal_y = car.y + lane_height * car.merging_direction
+
+                lanes[car.curr_lane].switch_lanes(car.merging_lane, car, car.car_index, car.merging_index)
+                Car.merging_state = Merging.MERGE_IN_PROGRESS
+                return
 
     def update_lane_cars_list(self, new_list):
         self.lane_cars_list = new_list
@@ -347,14 +386,13 @@ class Lane(pygame.sprite.Sprite):
         for idx, car in enumerate(self.lane_cars_list):
             if idx > 0 and self.lane_cars_list:
                 car.update_car_ahead(self.lane_cars_list[idx - 1])
-            self.update_car_states(self.lane_cars_list)
+            self.update_car_states()
             car.move()
             car.draw()
             if car.x > width:
                 if car.state == CarState.MERGING:
                     Car.merging_state = Merging.NO_MERGE
                 self.lane_cars_list.pop(car.car_index)
-                counter += 1
 
     @property
     def distance_window_list(self):
@@ -382,7 +420,7 @@ class Car(pygame.sprite.Sprite):
     static_car_id = 0
     merging_state = Merging.NO_MERGE
 
-    def __init__(self, x, y, spawn_lane_number):
+    def __init__(self, x, y, spawn_lane_number, dest_lane):
         pygame.sprite.Sprite.__init__(self)
 
         # identifying cars
@@ -392,7 +430,7 @@ class Car(pygame.sprite.Sprite):
         self.x = 0
         self.y = y
         self.react_time = 0
-        self.color = global_colors[random.randint(0, len(global_colors) - 1)]
+        self.color = red
         self.car_radius = 5
         self.car_speed = 1
         self.braking_rate = .2
@@ -401,10 +439,7 @@ class Car(pygame.sprite.Sprite):
         self.braking_rate = .2
         self.origin = spawn_lane_number
         self.curr_lane = spawn_lane_number
-        if self.curr_lane >= num_lanes:
-            self.dest = random.randint(0, num_lanes - 1)
-        else:
-            self.dest = random.randint(0, num_lanes + num_merge_lanes - 1)
+        self.dest = dest_lane
         self.state = CarState.CRUISING
         self.prev_state = CarState.CRUISING
 
@@ -421,6 +456,7 @@ class Car(pygame.sprite.Sprite):
         self.goal_x = None
         self.goal_y = None
         self.merge_count = 0
+        self.reached_x_goal = False
 
     @property
     def car_index(self):
@@ -439,48 +475,26 @@ class Car(pygame.sprite.Sprite):
         return self.car_speed
 
     def move(self):
-        if self.initiate_merge():
-            self.prev_state = self.state
-            self.state = CarState.MERGING
-            self.merging_lane.calculate_window()
-            self.merge_count = 0
-
-            # we want to accelerate in the middle of the neighbor car and the car in front of the neighbor car
-            dist_to_move = (self.merging_lane.distance_window_list[self.merging_index - 1] // 2) if \
-                self.merging_index != 0 else 10
-
-            if len(self.merging_lane.lane_cars_list) == 0:
-                self.goal_x = self.x + 50
-            elif self.merging_lane.lane_cars_list[self.merging_index].location_x > self.x:
-                self.goal_x = self.merging_lane.lane_cars_list[self.merging_index].location_x + dist_to_move
-            else:
-                self.goal_x = self.x
-
-            self.goal_y = self.y + lane_height * self.merging_direction
-
-            lanes[self.curr_lane].switch_lanes(self.merging_lane, self, self.car_index, self.merging_index)
-            Car.merging_state = Merging.MERGE_IN_PROGRESS
-
         if self.react_time > 0:
             self.react_time -= 1
         elif self.state == CarState.MERGING:
-            Car.merging_state = Merging.MERGE_IN_PROGRESS
-            if self.acc_to_merge():
-                self.y_speed = 2 if self.merging_direction == 1 else -2  # - goal_location_y
+            if self.acc_to_merge() or self.reached_x_goal:
+                self.y_speed = 2 * self.merging_direction  # - goal_location_y
                 if self.finished_merge():
                     lanes[self.curr_lane].switch_lanes(self.merging_lane, self, self.car_index, self.merging_index)
-                    self.prev_state = self.state
+                    self.prev_state = CarState.CRUISING
                     self.state = CarState.CRUISING
                     Car.merging_state = Merging.NO_MERGE
                     self.y_speed = 0
         elif self.state == CarState.BRAKING:
             self.car_speed -= self.braking_rate
+            self.y_speed = 0
             if self.car_speed <= 0:
                 self.car_speed = 0
                 if self.prev_state == CarState.MERGING:
                     self.prev_state = CarState.MERGING
                 else:
-                    self.prev_state = self.state
+                    self.prev_state = CarState.BRAKING
                 self.state = CarState.STOPPED
         elif self.state == CarState.STOPPED:
             self.car_speed = 0
@@ -488,23 +502,21 @@ class Car(pygame.sprite.Sprite):
         elif self.state == CarState.CRUISING:
             self.car_speed = lanes[self.curr_lane].max_speed
         elif self.state == CarState.ACCELERATING:
-            self.car_speed += .2
             if self.car_speed >= lanes[self.curr_lane].max_speed:
                 self.car_speed = lanes[self.curr_lane].max_speed
-                self.prev_state = self.state
+                self.prev_state = CarState.ACCELERATING
                 self.state = CarState.CRUISING
+            self.car_speed += .2
 
         if self.car_speed == 0:
             Car.static_traffic_score += 1
         self.x += self.car_speed
         self.y += self.y_speed
 
-        if self.is_on_ramp():
+        if self.is_on_ramp() and self.state != CarState.MERGING:
             self.y_speed = self.calc_y_speed()
         elif self.curr_lane >= num_lanes:
             self.y_speed = 0
-            if merge_lane.ramp_x + exit_ramp_width - 30 < self.x < merge_lane.ramp_x + exit_ramp_width:
-                self.brake(0)
 
     def update_car_ahead(self, car_ahead):
         self.car_ahead = car_ahead
@@ -520,6 +532,8 @@ class Car(pygame.sprite.Sprite):
         # if its about to miss its exit, then merge
 
         zones = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]
+        ramp_coords = [merge_lane.ramp_x, merge_lane_x + exit_ramp_width, exit_lane.ramp_x - exit_ramp_width,
+                       exit_lane.ramp_x]
 
         if Car.merging_state == Merging.MERGE_IN_PROGRESS or self.state == CarState.MERGING:
             return False
@@ -535,6 +549,15 @@ class Car(pygame.sprite.Sprite):
         if self.merging_index is None:
             return False
 
+        # special cases for entry and exit ramps
+        if self.curr_lane >= num_lanes:
+            return ramp_coords[0] < self.x < ramp_coords[1]
+
+        # initiate merges based on the destination lane and the current zone
+        dest_lane_num = self.curr_lane + self.merging_direction
+        if dest_lane_num >= num_lanes:
+            return ramp_coords[2] < self.x < ramp_coords[3]
+
         neighbor_car_idx = self.merging_index
         if len(self.merging_lane.lane_cars_list) == 0 or neighbor_car_idx is None:
             return True
@@ -542,26 +565,19 @@ class Car(pygame.sprite.Sprite):
         neighbor_car = self.merging_lane.lane_cars_list[neighbor_car_idx]
         neighbor_car.update_car_ahead(self.merging_lane.lane_cars_list[self.merging_index - 1])
 
-        if neighbor_car.distance(neighbor_car.car_ahead) < 10:
+        if neighbor_car.distance(neighbor_car.car_ahead) < 8:
             return False
 
         lane_left = None
         lane_right = None
         if self.curr_lane > 0:
             lane_left = lanes[self.curr_lane - 1]
-        if self.curr_lane < len(lanes) - 1:
+        if self.curr_lane < num_lanes + num_merge_lanes - 1:
             lane_right = lanes[self.curr_lane + 1]
 
         if not lane_left and not lane_right:
             return False  # single lane, no merging allowed
 
-        if self.curr_lane >= num_lanes:
-            return merge_lane_x < self.x < merge_lane_x + exit_ramp_width
-
-        # initiate merges based on the destination lane and the current zone
-        dest_lane_num = self.curr_lane + self.merging_direction
-        if dest_lane_num >= num_lanes:
-            return zones[10] < self.x < zones[13]
         count_merges = abs(self.dest - self.origin)
         if count_merges <= 1:
             return zones[10] < self.x < zones[13]
@@ -602,9 +618,9 @@ class Car(pygame.sprite.Sprite):
         self.prev_state = self.state
         self.state = CarState.BRAKING
         if self.react_time == 0:
-            self.react_time = 2
+            self.react(2)
         if car_distance == 0:
-            self.react_time = 0
+            self.react(0)
             self.braking_rate = .2
         elif car_distance < 5:
             self.braking_rate = 1
@@ -624,7 +640,11 @@ class Car(pygame.sprite.Sprite):
             self.prev_state = self.state
             self.state = CarState.ACCELERATING
 
-    # TODO configure the reaction times to be dependent on the state of the car
+    def merge(self):
+        # merge into the lane
+        self.prev_state = CarState.CRUISING
+        self.state = CarState.MERGING
+
     def react(self, sleep_time=0):
         # react to the car in front of you
         self.react_time = sleep_time
@@ -632,28 +652,28 @@ class Car(pygame.sprite.Sprite):
     def calc_y_speed(self):
         if self.state == CarState.STOPPED or self.car_speed == 0:
             return 0
-        if self.x in range(0, merge_lane.ramp_x):
+        if 0 <= self.x < merge_lane.ramp_x:
             slope = (merge_lane_y + lane_height // 2) / merge_lane.ramp_x
-            return slope / 3.2
+            return -slope / 20
         else:
-            slope = (exit_lane_y + lane_height // 2) / exit_lane.ramp_x
-            return -slope / 3.2
+            slope = (exit_lane_y + lane_height // 2) / (width - exit_lane.ramp_x)
+            return slope / 20
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.car_radius)
 
     def is_on_ramp(self):
         if self.curr_lane >= num_lanes:
-            if 0 < self.x < merge_lane.ramp_x:
+            if 0 <= self.x < merge_lane.ramp_x:
                 return True
-            elif exit_lane.ramp_x + exit_ramp_width < self.x < width:
+            elif exit_lane.ramp_x <= self.x < width:
                 return True
             else:
                 return False
 
     # EFFECT: returns a boolean true if the car has reached its goal location
     def finished_merge(self):
-        if self.merge_count >= 15:
+        if self.merge_count >= 14:
             return True
         else:
             self.merge_count += 1
@@ -661,12 +681,11 @@ class Car(pygame.sprite.Sprite):
 
     def acc_to_merge(self):
         if self.x < self.goal_x:
-            self.car_speed += 0.2
-            if self.car_speed > lanes[self.curr_lane].max_speed:
-                self.car_speed = lanes[self.curr_lane].max_speed
+            self.car_speed += 0.05
             return False
         else:
             self.car_speed = self.merging_lane.max_speed
+            self.reached_x_goal = True
             return True
 
 
@@ -688,8 +707,8 @@ def game_init():
 # Spawn new cars randomly in each lane
 # Change the spawn timer and random number to adjust the frequency of car spawns
 def spawn_cars():
-    PROBABILITY = 1
     # Create a car
+    global counter
     spawn_lane = random.randint(0, num_lanes + num_merge_lanes - 1)
 
     if spawn_timers[spawn_lane] <= 0:
@@ -697,17 +716,27 @@ def spawn_cars():
         car_y = lane_y + (lane_height // 2) * (2 * spawn_lane + 1)
         if spawn_lane >= num_lanes:
             car_y = merge_lane_y + (lane_height // 2)
-        new_car = Car(car_x, car_y, spawn_lane)
-        lanes[spawn_lane].add(new_car)
+        # 40% of everyone will have dest_lane 0
+        # 30% of everyone will have dest_lane ramp or num_lanes
+        dest_lane = spawn_lane
         if spawn_lane == 0:
-            spawn_timers[spawn_lane] = random.randint(80, 110)
-        elif spawn_lane == num_lanes - num_merge_lanes - 1:
-            spawn_timers[spawn_lane] = random.randint(80, 90)
+            if random.random() < 0.5:
+                dest_lane = random.randint(1, num_lanes + num_merge_lanes - 1)
+            spawn_timers[spawn_lane] = random.randint(40, 60)
+        elif spawn_lane == num_lanes - 1:
+            if random.random() < 0.5:
+                dest_lane = random.randint(0, num_lanes - 2)
+            spawn_timers[spawn_lane] = random.randint(70, 90)
         elif spawn_lane >= num_lanes:
-            spawn_timers[spawn_lane] = random.randint(110, 120)
+            dest_lane = random.randint(0, num_lanes - 1)
+            spawn_timers[spawn_lane] = random.randint(90, 100)
         else:
-            spawn_timers[spawn_lane] = random.randint(65, 95)
-
+            if random.random() < 0.3:
+                dest_lane = num_lanes + num_merge_lanes - 1
+            spawn_timers[spawn_lane] = random.randint(35, 55)
+        new_car = Car(car_x, car_y, spawn_lane, dest_lane)
+        lanes[spawn_lane].add(new_car)
+        counter += 1
     # decrement the spawn timer
     for i in range(num_lanes + num_merge_lanes):
         spawn_timers[i] -= 1
@@ -727,7 +756,8 @@ slider = Slider(900, 100, slider_width, slider_height, handle_width, handle_heig
 merge_lane = Ramp(merge_lane_x, "merge")
 exit_lane = Ramp(exit_lane_x, "exit")
 
-while running:
+# counter counts how many cars have been spawned
+while running and counter <= 400:
 
     screen.fill(green)
 
