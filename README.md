@@ -48,7 +48,7 @@ IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com
 
 ### IBM AI service(s) used
 
-- [IBM Watson Studios](https://cloud.ibm.com/catalog/services/watson-studio?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2c%2FY2F0ZWdvcnk9YWkjc2VydmljZXM%3D)- Deploying the machine learning notebook that leverages IBMs computing capabilities.
+- [IBM Watson Studio](https://cloud.ibm.com/catalog/services/watson-studio?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2c%2FY2F0ZWdvcnk9YWkjc2VydmljZXM%3D) - Deploying the machine learning notebook that leverages IBMs computing capabilities.
 
 - [IBM API Connect](https://www.ibm.com/products/api-connect?utm_content=SRCWW&p1=Search&p4=43700074478134124&p5=p&gclid=Cj0KCQjw_r6hBhDdARIsAMIDhV_qr7-DmFAWMWnLiHyMNizro5w2HrcTW40IB6TOQoJXVDooFY0VXVsaAlN2EALw_wcB&gclsrc=aw.ds) - Securly managing the various data API's that will be used to help train the model.
 
