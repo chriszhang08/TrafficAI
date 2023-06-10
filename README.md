@@ -44,7 +44,7 @@ Unlike current traffic simulators, our technology leverages the powers of artifi
 
 ### Machine Learning component
 
-IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com/analytics/notebooks/v2/df48d8cc-59d2-4e2b-b5ef-9035b2400c0a/view?projectid=aac45297-1e43-4e0d-a403-24c809aae8e1&context=cpdaas)
+IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com/analytics/notebooks/v2/df48d8cc-59d2-4e2b-b5ef-9035b2400c0a/view?access_token=e1331f8e9ebd49d9c5de6107ec567dc1c6547a678da2b362366b312d14220e22)
 
 ### IBM AI service(s) used
 
