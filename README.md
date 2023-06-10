@@ -13,6 +13,7 @@
   - [Project development roadmap](#project-development-roadmap)
   - [Future prospects](#future-prospects)
   - [Business Model](#business-model)
+  - [Tutorial](#tutorial-documentation)
 - [About this template](#about-this-template)
   - [Authors](#authors)
 
