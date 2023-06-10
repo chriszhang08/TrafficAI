@@ -1,16 +1,12 @@
 import random
 import numpy as np
-import pandas as pd
-from operator import add
-import collections
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import copy
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 from keras.optimizers import RMSprop
+from Environment import Game
 
 
 # TODO add an engineer class that will be used to configure the roads
@@ -61,7 +57,7 @@ class Agent:
         model.compile(loss='mse', optimizer=rms)
         model.predict(self.state.reshape(1, 5), batch_size=1)
 
-    def train_short_memory(self, state, action, reward, next_state, done):
+    def train_short_memory(self, state, action, reward, next_state, done, DEVICE):
         """
         Train the DQN agent on the <state, action, reward, next_state, is_done>
         tuple at the current timestep.
@@ -102,9 +98,41 @@ class Agent:
         y_train = np.array(y_train)
         return X_train, y_train
 
-def run(params):
+
+class GameEnvironment:
+    def __init__(self):
+        self.observation_space = 10  # Number of states
+        self.action_space = 4  # Number of actions
+        self.current_state = []
+        self.goal_state = None
+
+    def reset(self):
+        self.current_state = 0  # Reset state to 0
+        return self.current_state
+
+    def step(self, action):
+        """Execute the chosen action and observe the new state, reward,
+           and termination signal"""
+        if self.current_state == self.goal_state:
+            return self.current_state, 0, True  # Reached the goal state, return
+            # reward of 0 and terminate
+
+        # Execute the game. Load in the model.
+        # <insert loaded model here>
+        # We will provide this code below, as it is separate from our RL model.
+
+        if self.current_state == self.goal_state:
+            return self.current_state, 1, True  # Reached the goal state, return
+            # reward of 1 and terminate
+        else:
+            return self.current_state, 0, False  # Not yet reached the goal state,
+            # return reward of 0 and continue
+
+
+def run(params, engineer):
     agent = Agent(params)
     agent.play_game()
+    game = GameEnvironment(Game)
     # TODO edit play the game for as long as you want
     while (True):
         agent.save_config()
@@ -114,7 +142,7 @@ def run(params):
 
         # perform random actions based on agent.epsilon, or choose the action
         if random.uniform(0, 1) < agent.epsilon:
-            final_move = np.eye(3)[randint(0, 2)]
+            final_move = np.eye(3)[random.randint(0, 2)]
         else:
             # predict action based on the old state
             with torch.no_grad():
@@ -123,15 +151,15 @@ def run(params):
                 final_move = np.eye(3)[np.argmax(prediction.detach().cpu().numpy()[0])]
 
         # perform new move and get new state
-        engineer.configure_roads(final_move, game, agent)
-        state_new = agent.get_state(game, engineer)
+        engineer.configure_roads(final_move, agent.game, agent)
+        state_new = agent.get_state(agent.game, engineer)
 
         # set reward for the new state
-        reward = agent.set_reward(engineer, game.crash)
+        reward = agent.set_reward(engineer, agent.game.crash)
 
         if params['train']:
             # train short memory base on the new action and state
-            agent.train_short_memory(state_old, final_move, reward, state_new, game.crash)
+            agent.train_short_memory(state_old, final_move, reward, state_new, agent.game.crash)
             # store the new data into a long term memory
             agent.remember(state_old, final_move, reward, state_new, game.crash)
 
