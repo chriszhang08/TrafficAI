@@ -44,6 +44,10 @@ As we continue to develop this technology, our team will integrate features that
 
 ## Technology implementation
 
+### Machine Learning component
+
+IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com/analytics/notebooks/v2/df48d8cc-59d2-4e2b-b5ef-9035b2400c0a/view?projectid=aac45297-1e43-4e0d-a403-24c809aae8e1&context=cpdaas)
+
 ### IBM AI service(s) used
 
 - [IBM Watson Studios](https://cloud.ibm.com/catalog/services/watson-studio?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2c%2FY2F0ZWdvcnk9YWkjc2VydmljZXM%3D)- Deploying the machine learning notebook that leverages IBMs computing capabilities.
@@ -76,12 +80,6 @@ As we continue to develop this technology, our team will integrate features that
 
 ### Future prospects
 <img width="476" alt="Traffic AI Business model" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/f0ae30ec-c527-4f7b-95e8-2fd5730cc490">
-
-## Additional details
-
-### Machine Learning component
-
-IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com/analytics/notebooks/v2/df48d8cc-59d2-4e2b-b5ef-9035b2400c0a/view?projectid=aac45297-1e43-4e0d-a403-24c809aae8e1&context=cpdaas)
 
 ---
 
