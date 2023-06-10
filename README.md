@@ -83,21 +83,27 @@ As we continue to develop this technology, our team will integrate features that
 <img width="476" alt="Traffic AI Business model" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/f0ae30ec-c527-4f7b-95e8-2fd5730cc490">
 
 ### Tutorial Documentation
-What is Traffic AI:
-Traffic AI is a software we created which leverages IBM AI technology and machine learning algorithms to simulate and analyze factors such as traffic flow, congestion patterns, and carbon emissions. By outputting data-driven insights civil engineers, and urban planners can make informed decisions to minimize traffic congestion and also build efficient traffic road networks.
+#### What is Traffic AI?
 
-Key Features of Traffic AI:
+Traffic AI is a software we created which leverages IBM's AI technologies and machine learning algorithms to simulate and analyze factors such as traffic flow, congestion patterns, and carbon emissions. By outputting data-driven insights, civil engineers and urban planners can make informed decisions to minimize traffic congestion and also build efficient traffic road networks.
 
-Intelligent traffic Simulations: Traffic AI leverages machine learning to generate and evaluate multiple traffic scenarios. Using multiple parameters that can be factored into the program including vehicle flow, carbon emission levels, and congestion levels, the program delivers optimal results for different road configuration.
-Optimal Road Network Design: By considering existing infrastructure, Traffic AI can design road systems that both reduce carbon emissions and also integrate with the current environment. It is very valuable for new road designs or expanding existing networks.
-Real time Road Signaling: Traffic AI improves existing roads by suggesting in real time optimal road signaling including road signs, highway exit orientation, and construction control signing.
+#### Key Features of Traffic AI:
 
-Tutorial: How to Use Traffic AI
-Using Traffic AI is a straightforward process that is seamlessly integrated to process of designing road networks and improving traffic flow. To start the software must be launched, and the user must access the intuitive user interface. The software will then ask for any requests and for the user to fill in relevant parameters including but not limited to points of interest, traffic congestion data, vehicle flow, carbon emission levels, and more. This data allows the program to iterate through thousands of scenarios to generate an optimal network design or output the best steps when it comes to traffic signaling.
-Once the parameters have been imputed, Traffic AI uses machine learning algorithms to simulate multiple traffic scenarios and analyze the parameters/requests given. It will then simulate different configurations and analyze the best road configuration and signage placement.
-The user can then interact with the simulator and program to explore different possibilities such as closed lanes, construction zones, and any other factors impacting traffic flow. Through machine learning it can identify the most efficient and effective solutions
-By following this tutorial and engaging with Traffic AI, users can take advantage of endless datapoints and insights, ultimately contributing to better road creation and more sustainable cities.
-Finally it is worth noting Traffic AI will have 24/7 support available for help with any questions or concerns.
+Intelligent Traffic Simulations - Traffic AI leverages machine learning to generate and evaluate multiple traffic scenarios. Using multiple parameters that can be factored into the program including vehicle flow, carbon emission levels, and congestion levels, the program delivers optimal results for different road configuration.
+Optimal Road Network Design - By considering existing infrastructure, Traffic AI can design road systems that both reduce carbon emissions and also integrate with the current environment. It is very valuable for new road designs or expanding existing networks.
+Real-time Road Signaling - Traffic AI improves existing roads by suggesting optimal road signaling including road signs, highway exit orientation, and construction control signing in real-time.
+
+#### Tutorial: How to Use Traffic AI
+
+Using Traffic AI is a very straightforward process. The only requirement on the user's part is to specify hyperparameters that describe a certain road system or location. Once the software is launched, it will ask the user to seelct relevant parameters, including but not limited to points of interest, traffic congestion data, vehicle flow, carbon emission levels, and more. This data allows the program to iterate through thousands of scenarios to generate an optimal network design or output the best steps when it comes to traffic signaling.
+
+Once the parameters have been specified, Traffic AI uses machine learning algorithms, specifically reinforcement learning, to simulate multiple traffic scenarios and analyze the parameters/requests provided by the user. It will then simulate different road configurations, constantly varying factors such as the number of lanes in the system, the length of the entry and exit ramps, and so much more in order to determine the most optimal design; this layout corresponds to a system in which the least amount of carbon emissions are produced and the most efficient vehicle travel time is calculated.
+
+The user can also manually interact with the simulator and program to explore different possibilities such as closed lanes, construction zones, and any other factors impacting traffic flow. As previously noted, the unsupervised reinforcement models built to identify the single best traffic configuration will be used to guide the creation and development of road systems. 
+
+By following this tutorial and engaging with Traffic AI, users can take advantage of endless datapoints and insights, ultimately contributing to less congested traffic systems and more sustainable cities.
+
+Finally, it is worth noting that Traffic AI will have 24/7 support available for help with any questions or concerns.
 
 ---
 
