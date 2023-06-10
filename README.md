@@ -13,7 +13,7 @@
   - [Project development roadmap](#project-development-roadmap)
   - [Future prospects](#future-prospects)
   - [Business Model](#business-model)
-  - [Tutorial](#tutorial-documentation)
+  - [Tutorial and Interface](#tutorial-documentation)
 - [About this template](#about-this-template)
   - [Authors](#authors)
 
@@ -94,6 +94,8 @@ Optimal Road Network Design - By considering existing infrastructure, Traffic AI
 Real-time Road Signaling - Traffic AI improves existing roads by suggesting optimal road signaling including road signs, highway exit orientation, and construction control signing in real-time.
 
 #### Tutorial: How to Use Traffic AI
+<img width="1512" alt="IMG_3890" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/78669fc8-52a7-45f9-b9a7-efc9d6ef55df">
+
 
 Using Traffic AI is a very straightforward process. The only requirement on the user's part is to specify hyperparameters that describe a certain road system or location. Once the software is launched, it will ask the user to seelct relevant parameters, including but not limited to points of interest, traffic congestion data, vehicle flow, carbon emission levels, and more. This data allows the program to iterate through thousands of scenarios to generate an optimal network design or output the best steps when it comes to traffic signaling.
 
@@ -104,6 +106,7 @@ The user can also manually interact with the simulator and program to explore di
 By following this tutorial and engaging with Traffic AI, users can take advantage of endless datapoints and insights, ultimately contributing to less congested traffic systems and more sustainable cities.
 
 Finally, it is worth noting that Traffic AI will have 24/7 support available for help with any questions or concerns.
+
 
 ---
 
