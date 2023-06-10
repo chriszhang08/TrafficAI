@@ -57,7 +57,7 @@ IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com
 ### Solution demo video
 
 ![image](https://github.com/chriszhang08/TrafficAI/assets/52334278/1b7b9ef7-9245-440a-a4e0-2b51499454f1)
-[Link]https://youtu.be/fPidDRWasqQ
+[Link to video](https://youtu.be/fPidDRWasqQ)
 
 ### Solution architecture
 
