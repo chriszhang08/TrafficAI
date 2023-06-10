@@ -83,13 +83,7 @@ As we continue to develop this technology, our team will integrate features that
 
 IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com/analytics/notebooks/v2/df48d8cc-59d2-4e2b-b5ef-9035b2400c0a/view?projectid=aac45297-1e43-4e0d-a403-24c809aae8e1&context=cpdaas)
 
-### How to run the project
-
-The notebook cells have already been run with the creator's credentials. Since the credentials required are private to the creator's account, they were redacted for security purposes. However, all graphs, charts, and data displayed are purely as a result of running each consecutive code cell.
-
 ---
-
-## About this template
 
 ### Authors
 
