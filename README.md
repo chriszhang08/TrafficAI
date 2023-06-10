@@ -52,7 +52,7 @@ As we continue to develop this technology, our team will integrate features that
 
 ### Solution architecture
 
-// TODO
+![TrafficAI-Page-1 drawio](https://github.com/chriszhang08/TrafficAI/assets/52334278/88c484a6-a4f8-456a-8cc9-aee37cd8c4ee)
 
 ## Presentation materials
 
