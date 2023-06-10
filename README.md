@@ -37,7 +37,7 @@ Traffic is dreaded by many on their work commutes, school drop-offs, and daily e
 
 A variety of factors cause traffic, one of them being saturation, which means that roads can not handle the number of vehicles that drive through them. Exit locations, number of lanes, and stoplight designs all play a role in potential road saturation. Another cause of traffic is poor road signaling. Abruptly closed lanes, hidden highway exits, and unannounced construction zones are all reasons why unnecessary traffic may be formed. Our technology targets all these traffic factors in order to mitigate them through efficient road system designs and strategic road signaling. 
 
-Unlike current traffic simulators, our technology leverages the powers of artifical intelligence to simulate thousands of scenarios for any highway intersection. As the program is trained through these scenarios, it uses vehicle flow, congestion patterns, and preexisting highway configurations as parameters to deliver accurate insights on the efficiency of that highway configuration. For new road designs, users can input a location list and an estimated number of cars into the program, allowing the program to determine the optimal road network between the given locations. The program would take existing buildings, roads, and parks into account in order to generate a realistic road system that complements current infrastructure. Moreover, given that the US alone has more than 4 million miles of currently existing roads, our team wanted to address traffic in these existing areas as well, further making our technology unique. With our technology, users can improve current systems through better road signaling of highway exits, closed lanes, construction zones, etc. The program uses Pygame to simulate current road systems, so all the users are able to indicate where the obstacle is and an estimated number of cars. Then, the system can iterate through different signaling locations to notify the user which is most efficient. 
+Unlike current traffic simulators, our technology leverages the powers of artifical intelligence to simulate thousands of scenarios for any highway intersection. As the program is trained through these scenarios, it uses vehicle flow, congestion patterns, and preexisting highway configurations as parameters to deliver accurate insights on the efficiency of that highway configuration. For new road designs, users can input a location list and an estimated number of cars into the program, allowing the program to determine the optimal road network between the given locations. The program would take existing buildings, roads, and parks into account in order to generate a realistic road system that complements current infrastructure. Moreover, given that the US alone has more than 4 million miles of currently existing roads, our team wanted to address traffic in these existing areas as well, further making our technology unique. With our technology, users can improve current systems through better road signaling of highway exits, closed lanes, construction zones, etc. The program uses Pygame to simulate current road systems, so all the users are able to indicate where the obstacle is and an estimated number of cars. Then, the model can simulate different signaling locations to notify the user which is most efficient. 
 
 As we continue to develop this technology, our team will integrate features that make car behavior more accurate, such as patterns in popular locations at certain times. Since these features are associated with the user inputs and not the core framework, these additions will be seamless for users. Furthermore, we hope our program can expand into the autonomous car field, where our program could be used to help coordinate self-driving cars to reduce traffic.
 
@@ -46,7 +46,9 @@ As we continue to develop this technology, our team will integrate features that
 
 ### IBM AI service(s) used
 
-- // TODO
+- [IBM Watson Studios](https://cloud.ibm.com/catalog/services/watson-studio?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2c%2FY2F0ZWdvcnk9YWkjc2VydmljZXM%3D)- Deploying the machine learning notebook that leverages IBMs computing capabilities.
+
+- [IBM API Connect](https://www.ibm.com/products/api-connect?utm_content=SRCWW&p1=Search&p4=43700074478134124&p5=p&gclid=Cj0KCQjw_r6hBhDdARIsAMIDhV_qr7-DmFAWMWnLiHyMNizro5w2HrcTW40IB6TOQoJXVDooFY0VXVsaAlN2EALw_wcB&gclsrc=aw.ds) - Securly managing the various data API's that will be used to help train the model.
 
 ### Solution architecture
 
@@ -66,29 +68,11 @@ As we continue to develop this technology, our team will integrate features that
 ### Future prospects
 <img width="476" alt="Traffic AI Business model" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/f0ae30ec-c527-4f7b-95e8-2fd5730cc490">
 
-(Andres)
-
 ## Additional details
 
 ### Machine Learning component
 
-IBM Watson Studio Project can be found // TODO
-
-### Dataset
-
-// TODO Chris talk about where the data came from
-
-#### Graphs
-
-
-#### Final performance
-
-Include final results of protoype intersection.
-
-#### Calculating the coral reef index
-
-
-### React website
+IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com/analytics/notebooks/v2/df48d8cc-59d2-4e2b-b5ef-9035b2400c0a/view?projectid=aac45297-1e43-4e0d-a403-24c809aae8e1&context=cpdaas)
 
 ### How to run the project
 
@@ -105,4 +89,6 @@ The notebook cells have already been run with the creator's credentials. Since t
 
 #### References
 
-[1] 
+[1] “Nagel–schreckenberg model,” Wikipedia, [https://en.wikipedia.org/wiki/Nagel%E2%80%93Schreckenberg_model] (accessed May 27, 2023).
+
+[2] P. J. Wright, “Investigating traffic flow in the Nagel-schreckenberg model - Researchgate,” Investigating Traffic Flow in The Nagel-Schreckenberg Model, [https://www.researchgate.net/publication/257392971_Investigating_Traffic_Flow_in_The_Nagel-Schreckenberg_Model (accessed May 27, 2023)].
