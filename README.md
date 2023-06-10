@@ -77,7 +77,7 @@ IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com
 
 
 ### Future prospects
-As we continue to develop this technology, our team will integrate features that make car behavior more accurate, such as patterns in popular locations at certain times and implementing various driver archetypes. Since these features are associated with the user inputs and not the core framework, these additions will be seamless for users. Furthermore, we hope our program can expand into the autonomous car field, where our program could be used to help coordinate self-driving cars to reduce traffic. Finally, we hope to integrate this technology to improve navigation software, creating an ecosystem where these softwares can become smartly aware of the other cars that share the same roads.
+As we continue to develop this technology, our team will integrate features that make car behavior more accurate, such as patterns in popular locations at certain times and implementing various driver archetypes. Since these features are associated with the user inputs and not the core framework, these additions will be seamless for users. Furthermore, we hope our program can expand into the autonomous car field, where our program could be used to help coordinate self-driving vehicles to reduce traffic. Finally, we hope to integrate this technology to improve navigation software, creating an ecosystem where these softwares can become smartly aware of the other cars that share the same roads.
 
 ### Business Model
 <img width="476" alt="Traffic AI Business model" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/f0ae30ec-c527-4f7b-95e8-2fd5730cc490">
