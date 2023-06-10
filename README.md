@@ -1,4 +1,4 @@
-# Traffic AI // TODO figure out a new name
+# TrafficAI
 
 - [Project summary](#project-summary)
   - [The issue we are hoping to solve](#the-issue-we-are-hoping-to-solve)
@@ -50,15 +50,24 @@ As we continue to develop this technology, our team will integrate features that
 
 - [IBM API Connect](https://www.ibm.com/products/api-connect?utm_content=SRCWW&p1=Search&p4=43700074478134124&p5=p&gclid=Cj0KCQjw_r6hBhDdARIsAMIDhV_qr7-DmFAWMWnLiHyMNizro5w2HrcTW40IB6TOQoJXVDooFY0VXVsaAlN2EALw_wcB&gclsrc=aw.ds) - Securly managing the various data API's that will be used to help train the model.
 
-### Solution architecture
-
-![TrafficAI-Page-1 drawio](https://github.com/chriszhang08/TrafficAI/assets/52334278/88c484a6-a4f8-456a-8cc9-aee37cd8c4ee)
-
 ## Presentation materials
 
 ### Solution demo video
 
 // TODO
+
+### Solution architecture
+
+![TrafficAI-Page-1 drawio](https://github.com/chriszhang08/TrafficAI/assets/52334278/88c484a6-a4f8-456a-8cc9-aee37cd8c4ee)
+1. Federal Highway Administration traffic API will help the model simulate traffic in real time and with greater accuracy
+2. Utilizing existing existing traffic models and research to improve accuracy of AI model
+3. A curated database of previous traffic scores and other internal data points relevant to the AI
+4. The user of the application in this solution architecture is any stakeholder who has a say over the development of the civil infrastructure
+5. The simulation controls the environment that the AI model acts in 
+6. Proprietary data about current highway configurations, nationwide vehicle statistics, TrafficAI performance metrics and any other relevant historic data
+7. The application will consult with civil engineers and urban planners to design an interface that is convenient for everybody
+8. The knowledge catalog will be used to deliver data driven insights on enterprise data
+9. The core of the entire application is the AI model itself. Everything feeds into the training and development of the model
 
 ### Project development roadmap
 
