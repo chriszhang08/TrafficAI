@@ -71,8 +71,8 @@ IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com
 9. The core of the entire application is the AI model itself. Everything feeds into the training and development of the model
 
 ### Project development roadmap
+<img width="778" alt="Screenshot 2023-06-09 230157" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/2b0dad0a-eff4-4855-9fca-69ff0ead20cb">
 
-<img width="709" alt="TrafficAI Road Map" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/67a14985-a38a-496b-a714-f2f80997853b">
 
 
 ### Future prospects
