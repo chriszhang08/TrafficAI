@@ -1,6 +1,6 @@
 # TrafficAI
 
-- [Project summary](##project-summary)
+- [Project summary](#project-summary)
   - [The issue we are hoping to solve](#the-issue-we-are-hoping-to-solve)
   - [How our technology solution can help](#how-our-technology-solution-can-help)
   - [Our idea](#our-idea)
