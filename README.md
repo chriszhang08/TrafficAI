@@ -61,15 +61,15 @@ IBM Watson Studio Project can be found [here](https://dataplatform.cloud.ibm.com
 ### Solution architecture
 
 ![TrafficAI-Page-1 drawio](https://github.com/chriszhang08/TrafficAI/assets/52334278/88c484a6-a4f8-456a-8cc9-aee37cd8c4ee)
-1. Federal Highway Administration traffic API will help the model simulate traffic in real time and with greater accuracy
-2. Utilizing existing existing traffic models and research to improve accuracy of AI model
-3. A curated database of previous traffic scores and other internal data points relevant to the AI
-4. The user of the application in this solution architecture is any stakeholder who has a say over the development of the civil infrastructure
-5. The simulation controls the environment that the AI model acts in 
-6. Proprietary data about current highway configurations, nationwide vehicle statistics, TrafficAI performance metrics and any other relevant historic data
-7. The application will consult with civil engineers and urban planners to design an interface that is convenient for everybody
-8. The knowledge catalog will be used to deliver data driven insights on enterprise data
-9. The core of the entire application is the AI model itself. Everything feeds into the training and development of the model
+1. Federal Highway Administration Traffic API will help the model simulate traffic in real-time, allowing for greater accuracy.
+2. Utilizing existing traffic models and research will improve the accuracy of AI model by allowing it to iterate through a larger set of traffic configurations.
+3. A curated database of previous traffic scores and other internal data points relevant to the AI.
+4. The user of the application in this solution architecture is any stakeholder who has a say over the development of the civil infrastructure.
+5. The simulation controls the environment that the AI model acts in.
+6. Proprietary data about current highway configurations, nationwide vehicle statistics, TrafficAI performance metrics, and any other relevant historic data.
+7. The application will consult with civil engineers and urban planners to design an interface that is convenient for everyone and easily adoptable.
+8. The knowledge catalog will be used to deliver data driven insights on enterprise data.
+9. The core of the entire application is the AI model itself - everything feeds into the training and development of the model.
 
 ### Project development roadmap
 <img width="778" alt="Screenshot 2023-06-09 230157" src="https://github.com/chriszhang08/TrafficAI/assets/130103153/2b0dad0a-eff4-4855-9fca-69ff0ead20cb">
